@@ -12,7 +12,7 @@
 *.sln.docstates
 
 # Rider / IntelliJ
-.idea/
+.idea/*
 
 # Visual Studio / VS Code
 .vs/
