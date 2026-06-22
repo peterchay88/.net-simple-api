@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using StockMarketApi.Models;
+using StockMarketApi.Services.Clients;
 
 namespace StockMarketApi.Controllers;
 
@@ -7,12 +8,13 @@ public class TickerController : ControllerBase
 {
     [HttpGet]
     [Route("api/ticker")] 
-    public TickerInfo GetTickerInfo()
+    public async Task<ActionResult<TickerInfo>> GetTickerInfo()
     {
-        return new TickerInfo(
-            "Test Ticker",
-            "test",
-            ""
-        );
+        var stockApiClient = new StockApiClient(new HttpClient());
+        var tickerInfo = await stockApiClient.GetTickers();
+
+        if (tickerInfo is null) return NotFound();
+        return tickerInfo;
+        
     }
 }
