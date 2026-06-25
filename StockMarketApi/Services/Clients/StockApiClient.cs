@@ -17,14 +17,14 @@ public class StockApiClient(HttpClient httpClient) : IStockApiClient
 
     // End Constructors
     
-    private Dictionary<string, string> GetTickersQueryParams()
+    private Dictionary<string, string> GetTickersQueryParams(string active, string limit)
     {
         var queryParams =  new Dictionary<string, string>()
         {
             { "apiKey", apiKey },  // API key is set in the query params
             { "market", "stocks" },
-            { "active", "true" },
-            { "limit", "5" }
+            { "active", active },
+            { "limit", limit }
         };
         
         return queryParams;
@@ -35,10 +35,10 @@ public class StockApiClient(HttpClient httpClient) : IStockApiClient
         return new FormUrlEncodedContent(queryParams).ReadAsStringAsync();
     }
     
-    public async Task<List<TickerInfo?>> GetTickers()
+    public async Task<List<TickerInfo?>> GetTickers(string active, string limit)
     {
         // Take query params and convert it into a URI friendly query string
-        Dictionary<string, string> queryParams = GetTickersQueryParams();
+        Dictionary<string, string> queryParams = GetTickersQueryParams(active, limit);
         Task<string> queryString = ConvertQueryParamsToString(queryParams);
         
         // Make API call 
@@ -61,7 +61,8 @@ public class StockApiClient(HttpClient httpClient) : IStockApiClient
                     dict["name"].GetString() ?? string.Empty,
                     dict["ticker"].GetString() ?? string.Empty,
                     dict["market"].GetString() ?? string.Empty,
-                    dict["primary_exchange"].GetString() ?? string.Empty
+                    dict["primary_exchange"].GetString() ?? string.Empty,
+                    dict["active"].GetBoolean()
                 ));
             }
         }

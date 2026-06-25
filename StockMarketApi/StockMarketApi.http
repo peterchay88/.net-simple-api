@@ -5,3 +5,8 @@ Accept: application/json
 
 ###
 GET {{StockMarketApi_HostAddress}}/api/ticker
+
+###
+GET {{StockMarketApi_HostAddress}}/api/ticker
+    ?limit=4
+    &active=false

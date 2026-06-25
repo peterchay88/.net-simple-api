@@ -8,14 +8,16 @@ public class TickerController : ControllerBase
 {
     [HttpGet]
     [Route("api/ticker")] 
-    public async Task<ActionResult<List<TickerInfo>>> GetTickerInfo()
+    public async Task<ActionResult<List<TickerInfo>>> GetTickerInfo(
+        Boolean? active = true,
+        string? limit = "5")
     {
         var stockApiClient = new StockApiClient(new HttpClient());
-        List<TickerInfo> tickerInfo = await stockApiClient.GetTickers();
+        List<TickerInfo?> tickerInfo = await stockApiClient.GetTickers(active.ToString(), limit);
 
         if (tickerInfo.Count == 0)
         {
-            return NotFound("No ticker information found.");
+            return NoContent();
         }
         return tickerInfo;
         
