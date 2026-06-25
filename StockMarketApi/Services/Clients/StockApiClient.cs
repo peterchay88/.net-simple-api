@@ -1,5 +1,7 @@
+using System.Text.Json;
 using StockMarketApi.Models;
 using StockMarketApi.Services.Interfaces;
+using StockMarketApi.Services.Serializers;
 
 namespace StockMarketApi.Services.Clients;
 
@@ -33,18 +35,37 @@ public class StockApiClient(HttpClient httpClient) : IStockApiClient
         return new FormUrlEncodedContent(queryParams).ReadAsStringAsync();
     }
     
-    public async Task<TickerInfo?> GetTickers()
+    public async Task<List<TickerInfo?>> GetTickers()
     {
         // Take query params and convert it into a URI friendly query string
-        var queryParams = GetTickersQueryParams();
-        var queryString = ConvertQueryParamsToString(queryParams);
+        Dictionary<string, string> queryParams = GetTickersQueryParams();
+        Task<string> queryString = ConvertQueryParamsToString(queryParams);
         
-        // Make API call and map out to TickerInfo DTO object
-        var url  = $"{BaseUrl}?{queryString.Result}";
-        var responseDict = await Client.GetFromJsonAsync<Dictionary<string, object>?>(url);
-
+        // Make API call 
+        string url  = $"{BaseUrl}?{queryString.Result}";
+        HttpResponseMessage response = await Client.GetAsync(url);
+        response.EnsureSuccessStatusCode();
         
-        var tickerInfo = await Client.GetFromJsonAsync<TickerInfo>(url);
-        return tickerInfo;
+        // Convert response object to a Dictionary
+        Dictionary<string, object>? responseDict = await ResponseSerializer.SerializeToDict(response);
+        
+        // Create a list of TickerInfo Objects
+        List<TickerInfo?> tickerInfoList = new List<TickerInfo?>();
+        if (responseDict?["results"] is JsonElement resultsDict && resultsDict.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var ticker in resultsDict.EnumerateArray())
+            {
+                var dict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(ticker.GetRawText());
+                
+                tickerInfoList.Add(new TickerInfo(
+                    dict["name"].GetString() ?? string.Empty,
+                    dict["ticker"].GetString() ?? string.Empty,
+                    dict["market"].GetString() ?? string.Empty,
+                    dict["primary_exchange"].GetString() ?? string.Empty
+                ));
+            }
+        }
+        
+        return tickerInfoList;
     }
 }
