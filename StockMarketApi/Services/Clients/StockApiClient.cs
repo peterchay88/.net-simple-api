@@ -35,7 +35,7 @@ public class StockApiClient(HttpClient httpClient) : IStockApiClient
         return new FormUrlEncodedContent(queryParams).ReadAsStringAsync();
     }
     
-    public async Task<List<TickerInfo?>> GetTickers(string active, string limit)
+    public async Task<List<TickerInfo>> GetTickers(string active, string limit)
     {
         // Take query params and convert it into a URI friendly query string
         Dictionary<string, string> queryParams = GetTickersQueryParams(active, limit);
@@ -50,7 +50,7 @@ public class StockApiClient(HttpClient httpClient) : IStockApiClient
         Dictionary<string, object>? responseDict = await ResponseSerializer.SerializeToDict(response);
         
         // Create a list of TickerInfo Objects
-        List<TickerInfo?> tickerInfoList = new List<TickerInfo?>();
+        List<TickerInfo> tickerInfoList = new List<TickerInfo>();
         if (responseDict?["results"] is JsonElement resultsDict && resultsDict.ValueKind == JsonValueKind.Array)
         {
             foreach (var ticker in resultsDict.EnumerateArray())
