@@ -24,4 +24,13 @@ public class TickerController : ControllerBase
         return Ok(response);
         
     }
+
+    [HttpPost]
+    [Route("api/ticker")]
+    public async Task<ActionResult> PostTickerInfo(
+        bool active,
+        string limit)
+    {
+        return NoContent();
+    }
 }
