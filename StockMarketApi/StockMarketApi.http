@@ -8,5 +8,5 @@ GET {{StockMarketApi_HostAddress}}/api/ticker
 
 ###
 GET {{StockMarketApi_HostAddress}}/api/ticker
-    ?limit=4
+    ?limit=2
     &active=false

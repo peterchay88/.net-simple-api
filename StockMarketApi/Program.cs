@@ -1,4 +1,6 @@
 using dotenv.net;
+using Microsoft.EntityFrameworkCore;
+using StockMarketApi.Data;
 
 // Load .env file
 DotEnv.Load();
@@ -11,6 +13,13 @@ builder.Services.AddOpenApi();
 
 // Add controller services to the container
 builder.Services.AddControllers(); 
+
+// Add Database connection information
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Missing ConnectionStrings:DefaultConnection");
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(connectionString));
 
 var app = builder.Build();
 
