@@ -4,5 +4,5 @@ namespace StockMarketApi.Services.Interfaces;
 
 public interface IStockApiClient
 {
-    Task<List<TickerInfo>> GetTickers(string active, string limit);
+    Task<List<Ticker>> GetTickers(string active, string limit);
 }

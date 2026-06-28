@@ -1,7 +1,7 @@
 namespace StockMarketApi.Models;
 
 
-public record TickerInfo(
+public record Ticker(
     string TickerName,
     string TickerSymbol,
     string MarketType,
