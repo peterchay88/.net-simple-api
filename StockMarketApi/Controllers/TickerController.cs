@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using StockMarketApi.Data;
+using StockMarketApi.Models.Api;
 using StockMarketApi.Models;
 using StockMarketApi.Services.Clients;
 
@@ -9,11 +10,13 @@ public class TickerController : ControllerBase
 {
     private readonly AppDbContext _dbContext;
     private readonly HttpClient _httpClient;
+    private StockApiClient _stockApiClient;
     
     public TickerController(AppDbContext dbContext)
     {
         _httpClient = new HttpClient();
         _dbContext = dbContext;
+        _stockApiClient = new StockApiClient(_httpClient, _dbContext);
     }
     
     [HttpGet]
@@ -22,8 +25,7 @@ public class TickerController : ControllerBase
         Boolean active = true,
         string limit = "5")
     {
-        var stockApiClient = new StockApiClient(_httpClient, _dbContext);
-        List<Ticker> tickerInfoList = await stockApiClient.GetTickers(active.ToString(), limit);
+        List<Ticker> tickerInfoList = await _stockApiClient.GetTickers(active.ToString(), limit);
 
         if (tickerInfoList.Count == 0)  
         {
@@ -38,9 +40,10 @@ public class TickerController : ControllerBase
     [HttpPost]
     [Route("api/ticker")]
     public async Task<ActionResult> PostTickerInfo(
-        bool active,
-        string limit)
+        bool active = true,
+        string limit = "5")
     {
-        return NoContent();
+        int tickersSaved = _stockApiClient.FetchTickers(active.ToString(), limit).Result;
+        return Ok(tickersSaved);
     }
 }

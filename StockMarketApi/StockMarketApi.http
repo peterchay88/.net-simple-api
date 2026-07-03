@@ -10,3 +10,6 @@ GET {{StockMarketApi_HostAddress}}/api/ticker
 GET {{StockMarketApi_HostAddress}}/api/ticker
     ?limit=2
     &active=false
+
+###
+POST {{StockMarketApi_HostAddress}}/api/ticker

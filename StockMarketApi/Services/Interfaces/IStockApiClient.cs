@@ -1,4 +1,4 @@
-using StockMarketApi.Models;
+using StockMarketApi.Models.Api;
 
 namespace StockMarketApi.Services.Interfaces;
 

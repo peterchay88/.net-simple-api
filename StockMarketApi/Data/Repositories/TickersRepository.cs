@@ -1,5 +1,5 @@
 using StockMarketApi.Data.Entities;
-using StockMarketApi.Models;
+using StockMarketApi.Models.Api;
 
 namespace StockMarketApi.Data.Repositories;
 

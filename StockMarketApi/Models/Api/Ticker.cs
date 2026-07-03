@@ -1,4 +1,4 @@
-namespace StockMarketApi.Models;
+namespace StockMarketApi.Models.Api;
 
 
 public record Ticker(

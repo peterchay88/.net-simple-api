@@ -1,7 +1,7 @@
 using System.Text.Json;
 using StockMarketApi.Data;
 using StockMarketApi.Data.Repositories;
-using StockMarketApi.Models;
+using StockMarketApi.Models.Api;
 using StockMarketApi.Services.Interfaces;
 using StockMarketApi.Services.Serializers;
 
