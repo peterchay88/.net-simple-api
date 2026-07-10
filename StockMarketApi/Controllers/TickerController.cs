@@ -11,12 +11,14 @@ public class TickerController : ControllerBase
     private readonly AppDbContext _dbContext;
     private readonly HttpClient _httpClient;
     private StockApiClient _stockApiClient;
+    private readonly ILogger<StockApiClient> _logger;
     
-    public TickerController(AppDbContext dbContext)
+    public TickerController(AppDbContext dbContext, ILogger<StockApiClient> logger)
     {
         _httpClient = new HttpClient();
         _dbContext = dbContext;
-        _stockApiClient = new StockApiClient(_httpClient, _dbContext);
+        _logger = logger;
+        _stockApiClient = new StockApiClient(_httpClient, _dbContext, _logger);
     }
     
     [HttpGet]
@@ -41,7 +43,7 @@ public class TickerController : ControllerBase
     [Route("api/ticker")]
     public async Task<ActionResult> PostTickerInfo(
         bool active = true,
-        string limit = "5")
+        string limit = "0")
     {
         int tickersSaved = _stockApiClient.FetchTickers(active.ToString(), limit).Result;
         return Ok(tickersSaved);

@@ -1,4 +1,6 @@
 using System.Text.Json;
+using StockMarketApi.Data;
+using StockMarketApi.Models.Api;
 
 namespace StockMarketApi.Services.Serializers;
 
@@ -21,5 +23,34 @@ public class ResponseSerializer
         }
         
         return responseDict;
+    }
+
+    public static async Task<MassiveResults?> MapToMassiveResults(HttpResponseMessage response)
+    {
+        var massiveResults = await response.Content.ReadFromJsonAsync<MassiveResults>();
+        return massiveResults;
+    }
+
+    public static List<Ticker>? MapToTicker(MassiveResults? massiveResults)
+    {
+        var tickerList = new List<Ticker>();
+        
+        if (massiveResults?.Results == null)
+        {
+            return tickerList;
+        }
+
+        foreach (var tickerRow in massiveResults.Results)
+        {
+            var tickerJson = JsonSerializer.Serialize(tickerRow);
+            var ticker = JsonSerializer.Deserialize<Ticker>(tickerJson);
+           
+            ticker.CreatedOn = DateTime.UtcNow;
+            ticker.CreatedBy = "API USER";
+            
+            tickerList.Add(ticker);
+        }
+        
+        return tickerList;
     }
 }

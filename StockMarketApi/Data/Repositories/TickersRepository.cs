@@ -25,7 +25,9 @@ public class TickersRepository
             TickerName = t.TickerName,
             MarketType = t.MarketType,
             PrimaryExchange = t.PrimaryExchange,
-            IsActive = t.IsActive
+            IsActive = t.IsActive,
+            CreatedBy = t.CreatedBy,
+            CreatedOn = t.CreatedOn,
         });
         
         await _db.TickersTable.AddRangeAsync(tickersEntity);
