@@ -11,8 +11,8 @@ GET {{StockMarketApi_HostAddress}}/api/ticker
     ?limit=2
     &active=false
 
-###
+### Throws error
 POST {{StockMarketApi_HostAddress}}/api/ticker
 
 ###
-POST {{StockMarketApi_HostAddress}}/api/ticker?limit=1
+POST {{StockMarketApi_HostAddress}}/api/ticker?limit=5

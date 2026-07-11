@@ -1,8 +1,8 @@
-using System.Text.Json;
 using StockMarketApi.Data;
 using StockMarketApi.Data.Repositories;
 using StockMarketApi.Models.Api;
 using StockMarketApi.Services.Interfaces;
+using StockMarketApi.Services.Mappers;
 using StockMarketApi.Services.Serializers;
 
 namespace StockMarketApi.Services.Clients;
@@ -15,17 +15,23 @@ public class StockApiClient: IStockApiClient
     private readonly TickersRepository _tickersRepository;
     private const string BaseUrl = "https://api.massive.com/v3/reference/tickers";
     private readonly ILogger<StockApiClient> _logger;
+    private TickerMapper _tickerMapper;
     
     private static readonly string ApiKey =
         Environment.GetEnvironmentVariable("API_KEY")
         ?? throw new InvalidOperationException("API_KEY is missing");
     
-    public StockApiClient(HttpClient httpClient, AppDbContext dbContext,  ILogger<StockApiClient> logger)
+    public StockApiClient(
+        HttpClient httpClient, 
+        AppDbContext dbContext,  
+        ILogger<StockApiClient> logger,
+        TickerMapper tickerMapper)
     {
         _dbContext = dbContext;
         _tickersRepository = new TickersRepository(_dbContext);
         _client = httpClient;
         _logger = logger;
+        _tickerMapper = tickerMapper;
     }
     
     /*
@@ -68,31 +74,6 @@ public class StockApiClient: IStockApiClient
         
         // Create a list of Ticker Objects
         List<Ticker> tickerInfoList = new List<Ticker>();
-        // if (responseDict?["results"] is JsonElement resultsDict && resultsDict.ValueKind == JsonValueKind.Array)
-        // {
-        //     foreach (var ticker in resultsDict.EnumerateArray())
-        //     {
-        //         var dict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(ticker.GetRawText());
-        //
-        //         var tickerName = dict["name"].GetString() ?? string.Empty;
-        //         var tickerSymbol = dict["ticker"].GetString() ?? string.Empty;
-        //         var marketType = dict["market"].GetString() ?? string.Empty;
-        //         var primaryExchange = dict["primary_exchange"].GetString() ?? string.Empty;
-        //         var isActive = dict["active"].GetBoolean();
-        //         var createdOn = DateTime.UtcNow;
-        //         var createdBy = "Api User";
-        //         
-        //         tickerInfoList.Add(new Ticker(
-        //             tickerName,
-        //             tickerSymbol,
-        //             marketType,
-        //             primaryExchange,
-        //             isActive,
-        //             createdOn,
-        //             createdBy
-        //         ));
-        //     }
-        // }
         
         return tickerInfoList;
     }
@@ -124,40 +105,15 @@ public class StockApiClient: IStockApiClient
             // TODO: Add logic to return JSON API ERROR
         }
         
-        
-        // Create a list of Ticker Objects
-        var tickerInfoList = new List<Ticker>();
-        
-        // We still need to create a list of Ticker objects 
         // From the upstream call the objects are wrapped in a results array 
         // Serialize the upstream response into Results model
         var massiveResults = await ResponseSerializer.MapToMassiveResults(response);
-        // Serialize Results model into Ticker models
-        var tickerList = ResponseSerializer.MapToTicker(massiveResults);
-    
         
-        
-        // if (responseDict?["results"] is JsonElement resultsDict && resultsDict.ValueKind == JsonValueKind.Array)
-        // {
-        //     foreach (var ticker in resultsDict.EnumerateArray())
-        //     {
-        //         var dict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(ticker.GetRawText());
-        //
-        //         // var tickerName = dict["name"].GetString() ?? string.Empty;
-        //         // var tickerSymbol = dict["ticker"].GetString() ?? string.Empty;
-        //         // var marketType = dict["market"].GetString() ?? string.Empty;
-        //         // var primaryExchange = dict["primary_exchange"].GetString() ?? string.Empty;
-        //         // var isActive = dict["active"].GetBoolean();
-        //         // var createdOn = DateTime.UtcNow;
-        //         // var createdBy = "Api User";
-        //         
-        //         tickerInfoList.Add(new Ticker(
-        //         ));
-        //     }
-        // }
+        // Serialize Results model into a list of Ticker models
+        var tickerList = _tickerMapper.MapMassiveResultsToTicker(massiveResults);
 
-        int tickersRetrieved = tickerInfoList.Count;
-        int tickersInserted = _tickersRepository.InsertTickers(tickerInfoList).Result;
+        var tickersRetrieved = tickerList.Count;
+        var tickersInserted = _tickersRepository.InsertTickers(tickerList).Result;
         
         return tickersInserted;
     }

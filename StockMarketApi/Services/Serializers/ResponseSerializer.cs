@@ -31,26 +31,4 @@ public class ResponseSerializer
         return massiveResults;
     }
 
-    public static List<Ticker>? MapToTicker(MassiveResults? massiveResults)
-    {
-        var tickerList = new List<Ticker>();
-        
-        if (massiveResults?.Results == null)
-        {
-            return tickerList;
-        }
-
-        foreach (var tickerRow in massiveResults.Results)
-        {
-            var tickerJson = JsonSerializer.Serialize(tickerRow);
-            var ticker = JsonSerializer.Deserialize<Ticker>(tickerJson);
-           
-            ticker.CreatedOn = DateTime.UtcNow;
-            ticker.CreatedBy = "API USER";
-            
-            tickerList.Add(ticker);
-        }
-        
-        return tickerList;
-    }
 }

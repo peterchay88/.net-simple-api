@@ -1,6 +1,8 @@
 using dotenv.net;
 using Microsoft.EntityFrameworkCore;
 using StockMarketApi.Data;
+using StockMarketApi.Services.Clients;
+using StockMarketApi.Services.Mappers;
 
 // Load .env file
 DotEnv.Load();
@@ -18,8 +20,13 @@ builder.Services.AddControllers();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Missing ConnectionStrings:DefaultConnection");
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString));
+// Add services via dependency injection
+builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
+builder.Services.AddScoped<TickerMapper>();
+builder.Services.AddScoped<StockApiClient>();
+
+builder.Services.AddHttpClient<StockApiClient>();
+
 
 var app = builder.Build();
 

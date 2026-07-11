@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using StockMarketApi.Data;
 using StockMarketApi.Models.Api;
 using StockMarketApi.Models;
 using StockMarketApi.Services.Clients;
@@ -8,17 +7,11 @@ namespace StockMarketApi.Controllers;
 
 public class TickerController : ControllerBase
 {
-    private readonly AppDbContext _dbContext;
-    private readonly HttpClient _httpClient;
-    private StockApiClient _stockApiClient;
-    private readonly ILogger<StockApiClient> _logger;
+    private readonly StockApiClient _stockApiClient;
     
-    public TickerController(AppDbContext dbContext, ILogger<StockApiClient> logger)
+    public TickerController(StockApiClient stockApiClient)
     {
-        _httpClient = new HttpClient();
-        _dbContext = dbContext;
-        _logger = logger;
-        _stockApiClient = new StockApiClient(_httpClient, _dbContext, _logger);
+        _stockApiClient = stockApiClient;
     }
     
     [HttpGet]
